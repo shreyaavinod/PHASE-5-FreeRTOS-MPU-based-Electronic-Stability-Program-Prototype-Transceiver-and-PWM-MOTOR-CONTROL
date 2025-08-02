@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +46,7 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 HAL_StatusTypeDef ret;
 uint8_t rbuf;
+char txbuf[]="Waiting\r\n";
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,11 +95,13 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  ret= HAL_UART_Receive_IT(&huart1, &rbuf, 1);
+  HAL_UART_Receive_IT(&huart1, &rbuf, 1);
+//  HAL_UART_Transmit_IT(&huart2, (uint8_t *)&txbuf, strlen(txbuf));
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -252,21 +255,28 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 		if (rbuf==78)
 		{
-			HAL_UART_Transmit(&huart2, &rbuf, 1, HAL_MAX_DELAY);
+
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+			HAL_UART_Transmit_IT(&huart2,(char *)&rbuf,1);
 
 
 		}
 		else if (rbuf==89)
 		{
-			HAL_UART_Transmit(&huart2, &rbuf, 1, HAL_MAX_DELAY);
+
 
 			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+			HAL_UART_Transmit_IT(&huart2,(char *)&rbuf,1);
+
 		}
 
 		HAL_UART_Receive_IT(&huart1, &rbuf, 1);
 	}
 }
+//void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//	HAL_UART_Transmit_IT(&huart2,(uint8_t*)txbuf,strlen(txbuf));
+//}
 
 /* USER CODE END 4 */
 
